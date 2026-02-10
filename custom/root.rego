@@ -1,6 +1,6 @@
 package permit.custom
 
-default allow := false
+# default allow := false
 
 # You can find the official Rego tutorial at:
 # https://www.openpolicyagent.org/docs/latest/policy-language/
@@ -14,3 +14,18 @@ default allow := false
 #     # if my_custom_rule is true, EVEN IF policies.allow is false.
 #     my_custom_rule
 # }
+
+import future.keywords.in
+import data.permit.policies
+import data.permit.rbac
+
+default allow := false
+
+allow {
+    not "rbac" in policies.__allow_sources
+} else {
+   not "tmp-admin" in rbac.allowing_roles
+} else {
+   time.now_ns() >= time.parse_rfc3339_ns("2023-01-01T00:00:00+02:00")
+   time.now_ns() <= time.parse_rfc3339_ns("2024-01-01T00:00:00+02:00")
+}
